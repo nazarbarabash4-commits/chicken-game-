@@ -29,21 +29,19 @@ body{
 }
 
 /* універсальне затемнення для всіх мобільних браузерів */
-body::before{
-  content:"";
+.overlay{
   position:fixed;
-  left:0;
-  top:0;
+  inset:0;
   width:100%;
-  height:100dvh; /* новий стандартний юніт, працює ідеально */
-  background:rgba(0,0,0,0.28); /* зробив затемнення м’якшим */
+  height:100lvh; /* найточніший юніт для fullscreen */
+  background:rgba(0,0,0,0.25); /* легше затемнення */
   z-index:0;
   pointer-events:none;
 }
 
-/* fallback для старих браузерів */
-@supports not (height: 100dvh) {
-  body::before{
+/* fallback якщо браузер не підтримує 100lvh */
+@supports not (height: 100lvh) {
+  .overlay{
     height:100vh;
   }
 }
@@ -279,7 +277,7 @@ h1{
 
 </head>
 <body>
-
+<div class="overlay"></div>
 <div class="wrap">
   <h1>ВИБИРАЙ КОВПАК</h1>
   <p class="sub">

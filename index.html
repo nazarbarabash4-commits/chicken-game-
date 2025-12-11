@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Вибирай ковпак</title>
+
+<style>
+:root{
+  --muted:#b7c3c0;
+}
+
+/* ===== БАЗА ===== */
+
+*{ box-sizing:border-box }
+
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  color:#fff;
+  background:#000 url('bg-desktop.png') center/cover no-repeat;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  -webkit-tap-highlight-color:transparent;
+  position:relative;
+  overflow:hidden;
+}
+
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  z-index:0;
+}
+
+@media (max-width:768px){
+  body{
+    background-image:url('bg-mobile.png');
+  }
+}
+
+.wrap{
+  position:relative;
+  z-index:1;
+  width:min(1100px,96vw);
+  padding:clamp(16px,4vw,32px);
+  text-align:center;
+
+  /* центр по вертикалі */
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  min-height:90vh;
+}
+
+/* ===== ТЕКСТИ ===== */
+
+h1{
+  margin:0 0 clamp(12px, 3vw, 22px);
+  font-weight:900;
+  font-size:clamp(32px, 6vw, 60px);
+  line-height:1.05;
+  letter-spacing:.5px;
+}
+
+.sub{
+  margin-bottom: clamp(20px, 5vw, 40px);
+  color:#e6e6e6;
+  font-size:clamp(16px,4vw,22px);
+}
+
+/* ===== БЛОК КОВПАКІВ ===== */
+
+.board{
+  margin-top: clamp(20px, 4vw, 40px);
+  display:flex;
+  justify-content:center;
+  gap:clamp(12px,4vw,32px);
+  flex-wrap:nowrap;
+}
+
+@media (max-width:600px){
+  .board{
+    gap:clamp(8px,3vw,18px);
+  }
+}
+
+/* ===== КОВПАКИ ===== */
+
+.cup{
+  position:relative;
+  width:clamp(150px,28vw,260px);
+  aspect-ratio:1/0.9;
+  cursor:pointer;
+  border:none;
+  background:none;
+  padding:0;
+  outline:none;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.cup.disabled{
+  pointer-events:none;
+}
+
+/* анімація “підстрибування” */
+@keyframes cupBounce {
+  0%   { transform:translateY(0) scale(1); }
+  30%  { transform:translateY(-12px) scale(1.02); }
+  60%  { transform:translateY(0) scale(1); }
+  100% { transform:translateY(0) scale(1); }
+}
+
+/* ковпак */
+.cup-lid{
+  position:absolute;
+  inset:auto 0 12%;
+  margin:auto;
+  width:88%;
+  height:auto;
+  transition:transform .35s ease, opacity .25s ease;
+}
+
+/* що під ковпаком */
+.cup-content{
+  position:absolute;
+  inset:20% 0 0;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  pointer-events:none;
+  opacity:0;
+  transform:translateY(14px) scale(.9);
+  transition:opacity .3s ease .18s, transform .3s ease .18s;
+}
+
+.cup-chicken{
+  width:95%;
+  height:auto;
+}
+
+/* 🟢 МІНІ ПОПАП / BONUS БЕЙДЖ */
+.cup-bonus-pill{
+  padding:10px 22px;
+  border-radius:999px;
+  background:linear-gradient(180deg,#4ade80,#16a34a);
+  color:#022c22;
+  font-weight:900;
+  font-size:16px;
+  box-shadow:0 6px 0 #15803d,
+             0 14px 28px rgba(0,0,0,.45);
+  white-space:nowrap;
+}
+
+/* трохи менший на вузьких екранах */
+@media (max-width:480px){
+  .cup-bonus-pill{
+    padding:8px 18px;
+    font-size:14px;
+    box-shadow:0 4px 0 #15803d,
+               0 10px 22px rgba(0,0,0,.45);
+  }
+}
+
+/* стан: відкритий з куркою */
+.cup.show-chicken .cup-lid{
+  transform:translateY(-40%) scale(.96);
+  animation:cupBounce .35s ease-out;
+}
+.cup.show-chicken .cup-content{
+  opacity:1;
+  transform:translateY(0) scale(1);
+}
+
+/* стан: відкритий з бонусом */
+.cup.show-bonus .cup-lid{
+  transform:translateY(-40%) scale(.96);
+  animation:cupBounce .35s ease-out;
+}
+.cup.show-bonus .cup-content{
+  opacity:1;
+  transform:translateY(0) scale(1);
+}
+
+/* підпис знизу */
+.hint{
+  margin-top:22px;
+  color:var(--muted);
+  font-size:clamp(12px,3.4vw,16px);
+}
+
+/* ===== МОДАЛ ===== */
+
+.backdrop{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.65);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  z-index:20;
+}
+
+/* новий варіант */
+.backdrop.show{
+  display:flex;
+}
+
+/* сумісність зі старим кодом */
+.show{
+  display:flex;
+}
+
+.modal{
+  width:min(520px,96vw);
+  background:radial-gradient(circle at top,#065f46,#022c22);
+  border-radius:24px;
+  padding:26px 26px 28px;
+  box-shadow:0 28px 80px rgba(0,0,0,.75);
+  text-align:center;
+  position:relative;
+  border:1px solid rgba(22,163,74,.8);
+}
+
+.modal h2{
+  margin:0 0 10px;
+  font-size:clamp(20px,5vw,24px);
+  font-weight:700;
+  color:#bbf7d0;
+}
+
+.winline{
+  font-weight:800;
+  font-size:clamp(22px,6vw,32px);
+  margin:6px 0 20px;
+  color:#f9fafb;
+  line-height:1.25;
+}
+
+.cta{
+  margin-top:4px;
+  padding:14px 26px;
+  border-radius:999px;
+  border:0;
+  cursor:pointer;
+  background:linear-gradient(180deg,#22c55e,#16a34a);
+  color:#022c22;
+  font-weight:900;
+  font-size:18px;
+  box-shadow:0 10px 0 #15803d,
+             0 18px 40px rgba(0,0,0,.55);
+  transition:transform .12s ease, box-shadow .12s ease;
+}
+
+.cta:active{
+  transform:translateY(2px);
+  box-shadow:0 7px 0 #15803d,
+             0 12px 28px rgba(0,0,0,.5);
+}
+</style>
+
+
+</head>
+<body>
+
+<div class="wrap">
+  <h1>ВИБИРАЙ КОВПАК</h1>
+  <p class="sub">
+    Випробуйте удачу та заберіть бонуси: 150% до депозиту + 250 фріспінів!
+  </p>
+
+  <div class="board">
+    <button class="cup" data-index="0">
+      <img class="cup-lid" src="cloche.png" alt="Ковпак">
+      <div class="cup-content"></div>
+    </button>
+
+    <button class="cup" data-index="1">
+      <img class="cup-lid" src="cloche.png" alt="Ковпак">
+      <div class="cup-content"></div>
+    </button>
+
+    <button class="cup" data-index="2">
+      <img class="cup-lid" src="cloche.png" alt="Ковпак">
+      <div class="cup-content"></div>
+    </button>
+  </div>
+
+  <div class="hint">Спробуй свою удачу!</div>
+</div>
+
+<!-- Модал з виграшем -->
+<div id="backdrop" class="backdrop" role="dialog" aria-modal="true">
+  <div class="modal">
+    <h2>🎉 Вітаємо!</h2>
+    <div class="winline">
+      Ви виграли 150% до депозиту та 250 фріспінів!
+    </div>
+    <button id="claimBtn" class="cta">Забрати виграш</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  const cups = Array.from(document.querySelectorAll('.cup'));
+  const backdrop = document.getElementById('backdrop');
+  const claimBtn = document.getElementById('claimBtn');
+
+  // 2 курки + бонус
+  let results = ["chicken", "chicken", "bonus"];
+
+  // перемішуємо
+  results = results.sort(() => Math.random() - 0.5);
+
+  // зберігаємо результат у ковпаки
+  cups.forEach((cup, i) => {
+    cup.dataset.result = results[i];
+  });
+
+  let opened = 0;
+
+  cups.forEach(cup => {
+    cup.addEventListener("click", () => {
+
+      if (cup.classList.contains("disabled")) return;
+      cup.classList.add("disabled");
+
+      opened++;
+
+      let result = cup.dataset.result;
+      const content = cup.querySelector(".cup-content");
+      content.innerHTML = "";
+
+      // перші два кліки — курка
+      if (opened < 3) {
+
+        // навіть якщо ковпак був бонусним → у перших двох кліках він буде куркою
+        content.innerHTML = `<img class="cup-chicken" src="chicken-roast.png" alt="Жарена курка">`;
+        cup.dataset.result = "chicken";
+        cup.classList.add("show-chicken");
+        return;
+      }
+
+      // ТРЕТІЙ клік → бонус
+      content.innerHTML = `<div class="cup-bonus-pill">150% + 250 FS</div>`;
+      cup.classList.add("show-bonus");
+
+      setTimeout(() => backdrop.classList.add("show"), 600);
+
+    });
+  });
+
+  claimBtn.addEventListener("click", () => {
+    window.location.href = "{offer}";
+  });
+
+})();
+</script>
+
+</body>
+</html>
